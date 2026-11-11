@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Display</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: white; }
+        .update-flash { animation: flash 1s ease-in-out 3; }
+        @keyframes flash {
+            0%, 100% { color: white; }
+            50% { color: #fbbf24; }
+        }
+    </style>
+</head>
+<body class="h-screen overflow-hidden flex flex-col p-3 px-4 lg:p-6">
+
+    <!-- Header -->
+    <header class="flex justify-between items-center mb-3 border-b border-slate-700 pb-2">
+        <h1 class="lg:text-3xl text-sm font-bold tracking-widest text-slate-300">UNIVERSITY QUEUE DISPLAY</h1>
+        <div class="lg:text-2xl text-sm font-mono text-slate-400" id="clock">00:00:00</div>
+    </header>
+
+    <!-- Main Display Boards -->
+    <div class="flex-1 flex gap-4 md:gap-6 flex-col md:flex-row">
+        
+        <!-- Finance Board -->
+        <div class="flex-1 bg-slate-800 rounded-2xl shadow-2xl border-4 border-blue-500 flex flex-col overflow-hidden relative">
+            <div class="bg-blue-600 py-3 text-center">
+                <h2 class="lg:text-3xl text-lg font-black text-white tracking-widest">FINANCE / CASHIER</h2>
+            </div>
+            
+            <!-- MAIN NOW SERVING -->
+            <div class="flex-1 flex flex-col items-center justify-center p-4">
+                <p class="md:text-3xl text-md text-blue-300 font-bold mb-2 tracking-widest">NOW SERVING</p>
+                <div id="disp-finance-now" class="md:text-[8rem] md:text-[9rem] text-[2rem] leading-none font-black text-white mb-2 text-nowrap">---</div>
+                <div id="disp-finance-window" class="md:text-3xl text-md font-bold text-blue-400 bg-blue-900/50 px-6 lg:py-2 py-1 rounded-full">Window</div>
+            </div>
+
+            <!-- OTHER ACTIVE WINDOWS (Sub-list) -->
+            <div class="md:px-6 px-2 pb-2">
+                <div class="text-xs text-blue-300 font-bold uppercase mb-1 lg:text-lg">Other Active Windows</div>
+                <div id="disp-finance-other-windows" class="flex flex-wrap gap-2 lg:gap-3 text-sm text-slate-300 lg:text-2xl">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- NEXT IN LINE -->
+            <div class="lg:text-2xl xl:text-4xl bg-slate-900 p-3 lg:px-6 flex flex-wrap justify-between items-center border-t border-slate-700">
+                <span class="text-slate-400 font-bold">Queue:</span>
+                <span id="disp-finance-next" class="font-bold text-slate-500 align-text-right text-nowrap">---</span>
+            </div>
+        </div>
+
+        <!-- Registrar Board -->
+        <div class="flex-1 bg-slate-800 rounded-2xl shadow-2xl border-4 border-teal-500 flex flex-col overflow-hidden relative">
+            <div class="bg-teal-600 py-3 text-center">
+                <h2 class="lg:text-3xl text-lg font-black text-white tracking-widest">REGISTRAR</h2>
+            </div>
+            
+            <!-- MAIN NOW SERVING -->
+            <div class="flex-1 flex flex-col items-center justify-center p-4">
+                <p class="md:text-3xl text-md text-teal-300 font-bold mb-2 tracking-widest">NOW SERVING</p>
+                <div id="disp-registrar-now" class="md:text-[8rem] md:text-[9rem] text-[2rem] leading-none font-black text-white mb-2 text-nowrap">---</div>
+                <div id="disp-registrar-window" class="md:text-3xl text-md font-bold text-teal-400 bg-teal-900/50 px-6 lg:py-2 py-1 rounded-full">Window</div>
+            </div>
+
+            <!-- OTHER ACTIVE WINDOWS (Sub-list) -->
+            <div class="md:px-6 px-2 pb-2">
+                <div class="text-xs text-teal-300 font-bold uppercase mb-1 lg:text-lg">Other Active Windows</div>
+                <div id="disp-registrar-other-windows" class="flex flex-wrap gap-2 lg:gap-3 text-sm text-slate-300 lg:text-2xl">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- NEXT IN LINE -->
+            <div class="lg:text-2xl xl:text-4xl bg-slate-900 p-3 lg:px-6 flex justify-between items-center border-t border-slate-700">
+                <span class="text-slate-400 font-bold w-full">Queue:</span>
+                <span id="disp-registrar-next" class="font-semibold text-slate-500 text-nowrap">---</span>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+
+        const audioCtx = new AudioContext();
+
+        function ding() {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+
+            osc.type = "sine";
+            osc.frequency.value = 1000;
+
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            const now = audioCtx.currentTime;
+
+            gain.gain.setValueAtTime(0.1, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+
+            osc.start(now);
+            osc.stop(now + 1.5);
+        }
+
+        // --- 1. AUDIO NOTIFICATION ---
+        // A simple "ding" sound encoded in base64 so you don't need external files
+        const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YVpvT18AAAAA//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////8=");
+        
+        // Attempt to unlock audio on first user interaction (Browser security policy)
+        document.body.addEventListener('click', () => {
+            //audio.play().then(() => audio.pause()).catch(() => {});
+            ding(); // Also unlock the AudioContext
+        }, { once: true });
+
+        // --- 2. CLOCK ---
+        setInterval(() => {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+
+        // --- 3. SSE CONNECTION ---
+        const evtSource = new EventSource('http://localhost:3000/api/queue-stream');
+        
+        let previousState = null; // To detect changes for sound
+
+        evtSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            updateDisplay(data);
+        };
+
+        // --- 4. UI UPDATE LOGIC ---
+        function updateDisplay(data) {
+            // Check if a new number was called to play sound
+            if (previousState) {
+                if (data.finance.current !== previousState.finance.current || 
+                    data.registrar.current !== previousState.registrar.current) {
+                    playNotification();
+                }
+            }
+
+            // Update Finance
+            renderDepartment('finance', data.finance);
+            
+            // Update Registrar
+            renderDepartment('registrar', data.registrar);
+
+            previousState = data;
+        }
+
+        function renderDepartment(dept, deptData) {
+            // Main Display (Latest Call)
+            updateElement(`disp-${dept}-now`, deptData.current);
+            updateElement(`disp-${dept}-window`, deptData.window || 'Window');
+
+            // Other Active Windows
+            const otherContainer = document.getElementById(`disp-${dept}-other-windows`);
+            otherContainer.innerHTML = '';
+
+            // activeWindows is an array of { window, number } provided by backend
+            if (deptData.activeWindows && deptData.activeWindows.length > 0) {
+                deptData.activeWindows.forEach(win => {
+                    // Skip the main one currently displaying
+                    if (win.window === deptData.window) return; 
+                    
+                    otherContainer.innerHTML += `
+                        <div class="bg-slate-700 px-2 lg:px-3 py-1 rounded border border-slate-600 flex items-center gap-2 text-nowrap">
+                            <span class="text-slate-400 font-semibold uppercase">${win.window.substring(0, 1)}${ win.window.at(-1)}</span>
+                            <span class="font-bold text-white">${win.number}</span>
+                        </div>
+                    `;
+                });
+            } else {
+                otherContainer.innerHTML = `<span class="text-slate-500 italic text-xs">No other active windows</span>`;
+            }
+
+            // Next in Queue
+            updateElement(`disp-${dept}-next`, getNextThreeInQueue(deptData.queue));
+        }
+
+        function getNextThreeInQueue(queue) {
+            if (!queue || queue.length === 0) return '---';
+            let isMoreThanThree = queue.length > 3 ? '... +' + (queue.length - 3) : '';
+            return queue.map(ticket => ticket.number).slice(0, 3).join(', ') + isMoreThanThree;
+        }
+
+        function updateElement(id, newText) {
+            const el = document.getElementById(id);
+            if (el.textContent !== newText && newText !== '---' && newText !== 'Window') {
+                el.textContent = newText;
+                el.classList.remove('update-flash');
+                void el.offsetWidth; // Trigger reflow
+                el.classList.add('update-flash');
+            } else {
+                el.textContent = newText;
+            }
+        }
+
+        function playNotification() {
+            //audio.currentTime = 0;
+            //audio.play().catch(e => console.log("Audio play blocked by browser:", e));
+            ding();
+        }
+    </script>
+</body>
+</html>

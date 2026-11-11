@@ -1,0 +1,12 @@
+{
+  "name": "queueing_be",
+  "version": "1.0.0",
+  "description": "SSE for the queueing app",
+  "main": "queue_server.js",
+  "author": "j",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  }
+}

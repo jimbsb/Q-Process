@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Management - Staff Panel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .queue-number { transition: all 0.3s ease; }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800 h-screen overflow-hidden flex flex-col">
+
+    <!-- Top Header Bar -->
+    <header class="bg-slate-900 text-white px-6 py-3 flex justify-between items-center shadow-md z-10">
+        <div class="flex items-center gap-3">
+            <svg class="w-6 h-6 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+            <h1 class="text-lg font-bold tracking-wide">STAFF CONTROL PANEL</h1>
+        </div>
+        <div class="flex items-center gap-4">
+            <span id="connection-status" class="text-xs font-bold px-2 py-1 rounded bg-gray-700 text-gray-300">CONNECTING...</span>
+            <span id="clock" class="font-mono text-lg text-white font-bold">00:00:00</span>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
+        
+        <!-- Left Side: Live Display Board (Mirroring the TV) -->
+        <div class="flex-1 flex flex-col gap-4">
+            <!-- Finance Display -->
+            <div class="flex-1 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col overflow-hidden relative">
+                <div class="bg-blue-600 px-6 py-3 flex justify-between items-center text-white">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        FINANCE / CASHIER
+                    </h2>
+                    <span class="text-sm bg-blue-500 px-3 py-1 rounded-full" id="finance-waiting-count">Waiting: 0</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center justify-center p-6">
+                    <p class="text-gray-500 text-lg font-medium mb-2 uppercase tracking-widest">Now Serving</p>
+                    <div id="finance-now-serving" class="queue-number text-8xl font-extrabold text-blue-600 mb-2">---</div>
+                    <p id="finance-window" class="text-2xl font-semibold text-gray-700">Window 1</p>
+                </div>
+                <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-500 uppercase">Next in line</span>
+                    <span id="finance-next-preview" class="text-xl font-bold text-gray-400">---</span>
+                </div>
+            </div>
+
+            <!-- Registrar Display -->
+            <div class="flex-1 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col overflow-hidden relative">
+                <div class="bg-teal-600 px-6 py-3 flex justify-between items-center text-white">
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        REGISTRAR
+                    </h2>
+                    <span class="text-sm bg-teal-500 px-3 py-1 rounded-full" id="registrar-waiting-count">Waiting: 0</span>
+                </div>
+                <div class="flex-1 flex flex-col items-center justify-center p-6">
+                    <p class="text-gray-500 text-lg font-medium mb-2 uppercase tracking-widest">Now Serving</p>
+                    <div id="registrar-now-serving" class="queue-number text-8xl font-extrabold text-teal-600 mb-2">---</div>
+                    <p id="registrar-window" class="text-2xl font-semibold text-gray-700">Window 3</p>
+                </div>
+                <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-between items-center">
+                    <span class="text-sm font-semibold text-gray-500 uppercase">Next in line</span>
+                    <span id="registrar-next-preview" class="text-xl font-bold text-gray-400">---</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Side: Staff Control Panel -->
+        <div class="w-full md:w-96 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col">
+            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
+                <h2 class="text-lg font-bold text-gray-800">Terminal Actions</h2>
+                <p class="text-xs text-gray-500">Syncs instantly to TV screens via SSE</p>
+            </div>
+
+            <div class="flex-1 p-6 flex flex-col gap-6 flex-1 overflow-y-hidden">
+                <!-- Action Buttons -->
+                <div class="flex flex-col gap-3">
+                    <button onclick="issueTicket('finance')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Issue Finance Ticket
+                    </button>
+                    <button onclick="issueTicket('registrar')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                        Issue Registrar Ticket
+                    </button>
+                </div>
+
+                <hr class="border-gray-200">
+
+                <!-- Call Next Form -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Call Next Customer</h3>
+                    <div class="flex flex-col gap-3">
+                        <select id="callDept" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="finance">Finance / Cashier</option>
+                            <option value="registrar">Registrar</option>
+                        </select>
+                        <select id="callWindow" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="Window 1">Window 1</option>
+                            <option value="Window 2">Window 2</option>
+                            <option value="Window 3">Window 3</option>
+                            <option value="Window 4">Window 4</option>
+                        </select>
+                        <button onclick="callNext()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-md transition-colors">
+                            Call Next Number
+                        </button>
+                        <button onclick="clearWindow()" class="w-full sm:w-auto bg-red-100 hover:bg-red-200 text-red-700 font-bold py-2 px-4 rounded-md transition-colors text-sm border border-red-300">
+                            Clear Window
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200">
+
+                <!-- Active Queues List -->
+                <div class="flex-1  flex flex-col gap-2 overflow-y-auto">
+                    <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Global Waiting List</h3>
+                    <div id="waitingList" class="flex flex-col gap-2 overflow-y-auto">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. CONNECT TO BACKEND (SSE)
+        // ==========================================
+        const API_BASE = 'http://localhost:3000'; 
+        const statusEl = document.getElementById('connection-status');
+        let currentState = null;
+
+        const evtSource = new EventSource(`${API_BASE}/api/queue-stream`);
+
+        evtSource.onopen = () => {
+            statusEl.textContent = 'LIVE (CONNECTED)';
+            statusEl.className = 'text-xs font-bold px-2 py-1 rounded bg-green-900 text-green-300 border border-green-700';
+        };
+
+        evtSource.onerror = () => {
+            statusEl.textContent = 'DISCONNECTED (RETRYING)';
+            statusEl.className = 'text-xs font-bold px-2 py-1 rounded bg-red-900 text-red-300 border border-red-700';
+        };
+
+        evtSource.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            currentState = data;
+            updateUI(data);
+        };
+
+        // ==========================================
+        // 2. UI RENDERING
+        // ==========================================
+        function updateUI(data) {
+            // Update Finance
+            document.getElementById('finance-now-serving').textContent = data.finance.current;
+            document.getElementById('finance-window').textContent = data.finance.window;
+            document.getElementById('finance-next-preview').textContent = data.finance.next;
+            document.getElementById('finance-waiting-count').textContent = `Waiting: ${data.finance.queue ? data.finance.queue.length : 0}`;
+
+            // Update Registrar
+            document.getElementById('registrar-now-serving').textContent = data.registrar.current;
+            document.getElementById('registrar-window').textContent = data.registrar.window;
+            document.getElementById('registrar-next-preview').textContent = data.registrar.next;
+            document.getElementById('registrar-waiting-count').textContent = `Waiting: ${data.registrar.queue ? data.registrar.queue.length : 0}`;
+
+            // Update Global Waiting List Panel
+            const listContainer = document.getElementById('waitingList');
+            listContainer.innerHTML = '';
+
+            const allWaiting = [
+                ...(data.finance.queue || []).map((q,i) => ({ ...q, dept: 'Finance', index: i + 1 })),
+                ...(data.registrar.queue || []).map((q,i) => ({ ...q, dept: 'Registrar', index: i + 1 }))
+            ];
+
+            if (allWaiting.length === 0) {
+                listContainer.innerHTML = `<p class="text-sm text-gray-400 italic text-center py-4">No customers waiting.</p>`;
+            } else {
+                allWaiting.forEach((item, index) => {
+                    const badgeColor = item.dept === 'Finance' ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-700';
+                    listContainer.innerHTML += `
+                        <div class="flex justify-between items-center p-2 bg-gray-50 border border-gray-200 rounded text-sm">
+                            <div class="flex items-center gap-2">
+                                <span class="font-bold text-gray-800">${item.number}</span>
+                                <span class="px-2 py-0.5 rounded text-xs font-semibold ${badgeColor}">${item.dept}</span>
+                            </div>
+                            <span class="text-xs text-gray-500">#${item.index} in line</span>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        // ==========================================
+        // 3. API ACTIONS
+        // ==========================================
+        
+        async function issueTicket(dept) {
+            try {
+                const res = await fetch(`${API_BASE}/api/issue-ticket`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dept })
+                });
+                if (!res.ok) throw new Error('Failed to issue ticket');
+                // The SSE connection will automatically update the UI!
+            } catch (err) {
+                alert("Error connecting to server. Please check backend.");
+                console.error(err);
+            }
+        }
+
+        async function callNext() {
+            const dept = document.getElementById('callDept').value;
+            const window = document.getElementById('callWindow').value;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/call-next`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dept, window })
+                });
+                
+                if (!res.ok) {
+                    const errorData = await res.json();
+                    alert(errorData.message || "Failed to call next.");
+                }
+                // The SSE connection will automatically update the UI!
+                
+            } catch (err) {
+                alert("Error connecting to server. Please check backend.");
+                console.error(err);
+            }
+        }
+
+        async function clearWindow() {
+            const dept = document.getElementById('callDept').value;
+            const window = document.getElementById('callWindow').value;
+
+            if (!confirm(`Are you sure you want to clear ${window} for ${dept}?`)) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/clear-window`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dept, window })
+                });
+                
+                if (!res.ok) throw new Error('Failed to clear window');
+            } catch (err) {
+                alert("Error connecting to server.");
+                console.error(err);
+            }
+        }
+
+        // ==========================================
+        // 4. CLOCK
+        // ==========================================
+        setInterval(() => {
+            document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
+        }, 1000);
+    </script>
+</body>
+</html>

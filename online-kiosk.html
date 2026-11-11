@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Queue Number</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; }
+        .badge-finance { @apply bg-blue-100 text-blue-700; }
+        .badge-registrar { @apply bg-teal-100 text-teal-700; }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <!-- ========================================== -->
+    <!-- VIEW 1: PROMPT TO SCAN QR (No param present) -->
+    <!-- ========================================== -->
+    <div id="scanPromptView" class="w-full max-w-md bg-white rounded-2xl shadow-xl p-8 border border-gray-100 text-center hidden">
+        <div class="mx-auto w-24 h-24 bg-blue-50 rounded-full flex items-center justify-center mb-6">
+            <svg class="w-12 h-12 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path>
+            </svg>
+        </div>
+        <h1 class="text-2xl font-extrabold text-gray-900 mb-2">Scan QR Code</h1>
+        <p class="text-gray-500 mb-8">Please scan the QR code displayed at the department window to generate your queue number.</p>
+        
+        <div class="relative flex py-5 items-center">
+            <div class="flex-grow border-t border-gray-200"></div>
+            <span class="flex-shrink-0 mx-4 text-gray-400 text-sm">or</span>
+            <div class="flex-grow border-t border-gray-200"></div>
+        </div>
+
+        <button onclick="showFormView()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition-colors">
+            Proceed Manually
+        </button>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 2: THE FORM (Requires Department)     -->
+    <!-- ========================================== -->
+    <div id="formView" class="w-full max-w-lg bg-white rounded-2xl shadow-xl p-8 border border-gray-100 hidden relative">
+        
+        <div class="text-center mb-6">
+            <!-- Badge (Only shows if query param exists) -->
+            <div id="deptBadgeContainer" class="mb-3 hidden">
+                <div id="deptBadge" class="inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider">Department</div>
+            </div>
+            
+            <h1 class="text-2xl font-extrabold text-gray-900">Generate Queue Number</h1>
+            <p class="text-gray-500 text-sm mt-1">Please fill out all required fields.</p>
+        </div>
+
+        <form id="kioskForm" onsubmit="submitForm(event)" class="flex flex-col gap-4">
+            
+            <!-- Hidden Input for Dept (if from QR) -->
+            <input type="hidden" id="deptInput" value="">
+
+            <!-- Manual Department Selection (Only shows if NO query param) -->
+            <div id="manualDeptSelect" class="hidden">
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Select Department <span class="text-red-500">*</span></label>
+                <select id="deptSelect" class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="" disabled selected>Select Department</option>
+                    <option value="finance">Finance / Cashier</option>
+                    <option value="registrar">Registrar</option>
+                </select>
+            </div>
+
+            <!-- ID Number -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">ID Number <span class="text-red-500">*</span></label>
+                <input type="text" id="idno" required placeholder="e.g., 2024-00123" 
+                    class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Transaction -->
+            <div>
+                <label class="block text-sm font-semibold text-gray-700 mb-1">Transaction / Purpose <span class="text-red-500">*</span></label>
+                <select id="transaction" required class="w-full border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                    <option value="" disabled selected>Select your transaction</option>
+                    <option value="Tuition Payment">Tuition Payment</option>
+                    <option value="Scholarship Inquiry">Scholarship Inquiry</option>
+                    <option value="Transcript Request">Transcript Request</option>
+                    <option value="Enrollment Issue">Enrollment Issue</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+
+            <button type="submit" id="submitBtn" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors mt-2 text-lg">
+                Get Number
+            </button>
+        </form>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- VIEW 3: LIVE TRACKER (After getting number)-->
+    <!-- ========================================== -->
+    <div id="trackerView" class="w-full max-w-md bg-white rounded-2xl shadow-2xl p-6 border border-gray-100 hidden text-center relative overflow-hidden">
+        
+        <!-- Top Status Bar -->
+        <div id="trackerStatusBar" class="absolute top-0 left-0 w-full h-2 bg-gray-400 transition-colors duration-300"></div>
+        
+        <h2 class="text-gray-500 font-semibold tracking-widest text-sm uppercase mb-2 mt-2">Your Queue Number</h2>
+        <div id="trackerNumber" class="text-7xl font-black text-gray-900 mb-4">---</div>
+        
+        <!-- Main Status Badge -->
+        <div class="mb-6">
+            <span id="trackerStatusBadge" class="inline-block px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border bg-gray-100 text-gray-700 border-gray-300">---</span>
+        </div>
+
+        <!-- Details Box -->
+        <div class="bg-gray-50 rounded-xl p-4 mb-6 text-left space-y-3 text-sm border border-gray-100">
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+                <span class="text-gray-500">Department</span>
+                <span id="trackerOffice" class="font-bold text-gray-800 capitalize">---</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+                <span class="text-gray-500">Transaction</span>
+                <span id="trackerTrans" class="font-bold text-gray-800">---</span>
+            </div>
+            <div class="flex justify-between border-b border-gray-200 pb-2">
+                <span class="text-gray-500">Window</span>
+                <span id="trackerWindow" class="font-bold text-gray-800">Waiting...</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-gray-500">Current Serving</span>
+                <span id="trackerNowServing" class="font-bold text-gray-800">---</span>
+            </div>
+        </div>
+
+        <!-- Timers -->
+        <div id="timerBox" class="hidden rounded-xl p-4 mb-6 border">
+            <p id="timerLabel" class="text-xs font-bold uppercase tracking-wider mb-1">Duration</p>
+            <div id="activeTimer" class="text-3xl font-mono font-bold">00:00</div>
+        </div>
+
+        <!-- Actions -->
+        <div id="trackerActions" class="hidden mt-4">
+            <p class="text-gray-600 font-medium mb-3">Transaction completed.</p>
+            <button onclick="clearTicket()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-3 rounded-lg transition-colors">
+                New Transaction
+            </button>
+        </div>
+
+        <button id="trackerExitBtn" onclick="clearTicket()" class="text-gray-400 hover:text-gray-600 text-sm font-semibold underline mt-4">Cancel / Exit</button>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3000';
+        const VALID_DEPTS = ['finance', 'registrar'];
+        
+        let currentTicketId = null;
+        let currentDept = null;
+        let timerInterval = null;
+        let sseSource = null;
+
+        // ==========================================
+        // 1. INIT & CACHING LOGIC
+        // ==========================================
+        window.onload = () => {
+            // Check if user already has an active ticket saved in cache
+            const cachedTicket = localStorage.getItem('queueTicket');
+            if (cachedTicket) {
+                const parsed = JSON.parse(cachedTicket);
+                currentTicketId = parsed.id;
+                currentDept = parsed.dept;
+                showTrackerView();
+                return;
+            }
+
+            // Otherwise, route based on URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const deptParam = urlParams.get('dept');
+
+            if (deptParam && VALID_DEPTS.includes(deptParam.toLowerCase())) {
+                loadForm(deptParam.toLowerCase());
+            } else {
+                document.getElementById('scanPromptView').classList.remove('hidden');
+            }
+        };
+
+        function showFormView() {
+            document.getElementById('scanPromptView').classList.add('hidden');
+            document.getElementById('formView').classList.remove('hidden');
+            
+            // Show manual selection since no QR was scanned
+            document.getElementById('manualDeptSelect').classList.remove('hidden');
+            document.getElementById('deptSelect').required = true;
+            document.getElementById('deptBadgeContainer').classList.add('hidden');
+        }
+
+        function loadForm(dept) {
+            document.getElementById('scanPromptView').classList.add('hidden');
+            document.getElementById('formView').classList.remove('hidden');
+
+            // Set hidden input
+            document.getElementById('deptInput').value = dept;
+            currentDept = dept;
+
+            // Show Badge, Hide Manual Select
+            document.getElementById('deptBadgeContainer').classList.remove('hidden');
+            document.getElementById('manualDeptSelect').classList.add('hidden');
+            document.getElementById('deptSelect').required = false;
+
+            // Style Badge & Button
+            const badge = document.getElementById('deptBadge');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (dept === 'finance') {
+                badge.textContent = 'Finance / Cashier';
+                badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider badge-finance';
+                submitBtn.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors mt-2 text-lg';
+            } else {
+                badge.textContent = 'Registrar';
+                badge.className = 'inline-block px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider badge-registrar';
+                submitBtn.className = 'w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors mt-2 text-lg';
+            }
+        }
+
+        // ==========================================
+        // 2. SUBMIT LOGIC
+        // ==========================================
+        async function submitForm(e) {
+            e.preventDefault();
+            
+            const idno = document.getElementById('idno').value;
+            const transaction = document.getElementById('transaction').value;
+            
+            // Determine department (from hidden input OR manual select)
+            let dept = document.getElementById('deptInput').value;
+            if (!dept) {
+                dept = document.getElementById('deptSelect').value;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/issue-ticket`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dept, idno, transaction })
+                });
+                const data = await res.json();
+                
+                if (data.success) {
+                    currentTicketId = data.ticket.number;
+                    currentDept = dept;
+
+                    // Cache ticket to prevent duplicates
+                    localStorage.setItem('queueTicket', JSON.stringify({
+                        id: currentTicketId,
+                        dept: currentDept
+                    }));
+
+                    showTrackerView(data.state[dept], data.ticket);
+                }
+            } catch (err) {
+                alert("Error generating ticket. Please try again.");
+            }
+        }
+
+        function showTrackerView(initialState = null, initialTicket = null) {
+            document.getElementById('formView').classList.add('hidden');
+            document.getElementById('trackerView').classList.remove('hidden');
+            
+            document.getElementById('trackerNumber').textContent = currentTicketId;
+            document.getElementById('trackerOffice').textContent = currentDept;
+
+            if (initialTicket) {
+                updateTracker(initialState, initialTicket);
+            }
+
+            startSSE();
+        }
+
+        function clearTicket() {
+            localStorage.removeItem('queueTicket');
+            window.location.href = window.location.pathname; // Reload clean
+        }
+
+        // ==========================================
+        // 3. SSE TRACKER
+        // ==========================================
+        function startSSE() {
+            if (sseSource) sseSource.close();
+            sseSource = new EventSource(`${API_BASE}/api/queue-stream`);
+            
+            sseSource.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                
+                if (currentTicketId && currentDept) {
+                    const deptState = data[currentDept];
+                    
+                    // Find ticket in waiting queue
+                    let myTicket = deptState.queue.find(t => t.number === currentTicketId);
+                    
+                    // Or in the active serving ticket
+                    if (!myTicket && deptState.servingTicket && deptState.servingTicket.number === currentTicketId) {
+                        myTicket = deptState.servingTicket;
+                    }
+
+                    if (myTicket) {
+                        updateTracker(deptState, myTicket);
+                    }
+                }
+            };
+        }
+
+        // ==========================================
+        // 4. TRACKER UI UPDATES & STATUS COLORS
+        // ==========================================
+        function updateTracker(deptState, ticket) {
+            const badge = document.getElementById('trackerStatusBadge');
+            const statusBar = document.getElementById('trackerStatusBar');
+            const actionsDiv = document.getElementById('trackerActions');
+            const exitBtn = document.getElementById('trackerExitBtn');
+            
+            // Reset structural classes
+            badge.className = 'inline-block px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border';
+            actionsDiv.classList.add('hidden');
+            exitBtn.classList.remove('hidden');
+
+            // Handle Window & Transaction
+            document.getElementById('trackerTrans').textContent = ticket.transaction;
+            document.getElementById('trackerWindow').textContent = ticket.window || 'Not assigned';
+            document.getElementById('trackerNowServing').textContent = deptState.current || '---';
+
+            // Apply Status Colors & Logic
+            switch (ticket.status) {
+                case 'open':
+                    badge.textContent = 'Waiting (Next in line)';
+                    badge.classList.add('bg-green-100', 'text-green-700', 'border-green-300');
+                    statusBar.className = 'absolute top-0 left-0 w-full h-2 bg-green-500';
+                    break;
+                
+                case 'calling':
+                    badge.textContent = `Calling - ${ticket.window}`;
+                    badge.classList.add('bg-yellow-100', 'text-yellow-700', 'border-yellow-400', 'animate-pulse');
+                    statusBar.className = 'absolute top-0 left-0 w-full h-2 bg-yellow-400';
+                    break;
+
+                case 'processing':
+                    badge.textContent = `Processing at ${ticket.window}`;
+                    badge.classList.add('bg-orange-100', 'text-orange-700', 'border-orange-400');
+                    statusBar.className = 'absolute top-0 left-0 w-full h-2 bg-orange-500';
+                    break;
+
+                case 'hold':
+                    badge.textContent = 'On Hold';
+                    badge.classList.add('bg-cyan-100', 'text-cyan-700', 'border-cyan-400');
+                    statusBar.className = 'absolute top-0 left-0 w-full h-2 bg-cyan-400';
+                    break;
+
+                case 'void':
+                    badge.textContent = 'Voided';
+                    badge.classList.add('bg-red-100', 'text-red-700', 'border-red-400');
+                    statusBar.className = 'absolute top-0 left-0 w-full h-2 bg-red-500';
+                    actionsDiv.classList.remove('hidden');
+                    exitBtn.classList.add('hidden');
+                    break;
+
+                case 'closed':
+                    badge.textContent = 'Closed';
+                    badge.classList.add('bg-gray-200', 'text-gray-600', 'border-gray-300');
+                    statusBar.className = 'absolute top-0 left-0 w-full h-2 bg-gray-500';
+                    actionsDiv.classList.remove('hidden');
+                    exitBtn.classList.add('hidden');
+                    break;
+            }
+
+            // Timer Logic
+            const timerBox = document.getElementById('timerBox');
+            const timerDisplay = document.getElementById('activeTimer');
+            const timerLabel = document.getElementById('timerLabel');
+
+            if (ticket.status === 'processing' && ticket.timeProcessing) {
+                timerBox.className = 'bg-orange-50 rounded-xl p-4 mb-6 border border-orange-100';
+                timerLabel.className = 'text-xs text-orange-600 font-bold uppercase tracking-wider mb-1';
+                timerDisplay.className = 'text-3xl font-mono font-bold text-orange-800';
+                timerBox.classList.remove('hidden');
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timerDisplay.textContent = formatTime(Date.now() - ticket.timeProcessing);
+                }, 1000);
+            } 
+            else if (ticket.status === 'hold' && ticket.timeHold) {
+                timerBox.className = 'bg-cyan-50 rounded-xl p-4 mb-6 border border-cyan-100';
+                timerLabel.className = 'text-xs text-cyan-600 font-bold uppercase tracking-wider mb-1';
+                timerDisplay.className = 'text-3xl font-mono font-bold text-cyan-800';
+                timerBox.classList.remove('hidden');
+                if (timerInterval) clearInterval(timerInterval);
+                timerInterval = setInterval(() => {
+                    timerDisplay.textContent = formatTime(Date.now() - ticket.timeHold);
+                }, 1000);
+            }
+            else if ((ticket.status === 'closed' || ticket.status === 'void') && ticket.timeClosed) {
+                timerBox.className = 'bg-gray-100 rounded-xl p-4 mb-6 border border-gray-200';
+                timerLabel.className = 'text-xs text-gray-500 font-bold uppercase tracking-wider mb-1';
+                timerDisplay.className = 'text-3xl font-mono font-bold text-gray-800';
+                timerBox.classList.remove('hidden');
+                if (timerInterval) clearInterval(timerInterval);
+                timerDisplay.textContent = ticket.timeProcessing ? formatTime(ticket.timeClosed - ticket.timeProcessing) : "00:00";
+            }
+            else {
+                if (timerInterval) clearInterval(timerInterval);
+                timerBox.classList.add('hidden');
+            }
+        }
+
+        function formatTime(ms) {
+            const totalSeconds = Math.floor(ms / 1000);
+            const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+            const s = (totalSeconds % 60).toString().padStart(2, '0');
+            return `${m}:${s}`;
+        }
+    </script>
+</body>
+</html>
