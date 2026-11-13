@@ -161,7 +161,7 @@
             otherContainer.innerHTML = '';
 
             // activeWindows is an array of { window, number } provided by backend
-            if (deptData.activeWindows && deptData.activeWindows.length > 0) {
+            if (deptData.activeWindows && deptData.activeWindows.filter(win => win.window !== deptData.window).length > 0) {
                 deptData.activeWindows.forEach(win => {
                     // Skip the main one currently displaying
                     if (win.window === deptData.window) return; 

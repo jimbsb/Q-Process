@@ -28,45 +28,43 @@
     <!-- Main Content Area -->
     <main class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
         
-        <!-- Left Side: Live Display Board (Mirroring the TV) -->
+        <!-- Left Side: Focused Display Board -->
         <div class="flex-1 flex flex-col gap-4">
-            <!-- Finance Display -->
-            <div class="flex-1 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col overflow-hidden relative">
-                <div class="bg-blue-600 px-6 py-3 flex justify-between items-center text-white">
-                    <h2 class="text-xl font-bold flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            
+            <!-- Department Focus Card -->
+            <div id="focusCard" class="flex-1 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col overflow-hidden relative transition-colors duration-300">
+                <div id="focusCardHeader" class="bg-blue-600 px-6 py-3 flex justify-between items-center text-white transition-colors duration-300">
+                    <h2 class="text-xl font-bold flex items-center gap-2" id="focusCardTitle">
                         FINANCE / CASHIER
                     </h2>
-                    <span class="text-sm bg-blue-500 px-3 py-1 rounded-full" id="finance-waiting-count">Waiting: 0</span>
+                    <span class="text-sm bg-black/20 px-3 py-1 rounded-full" id="focusWaitingCount">Waiting: 0</span>
                 </div>
                 <div class="flex-1 flex flex-col items-center justify-center p-6">
                     <p class="text-gray-500 text-lg font-medium mb-2 uppercase tracking-widest">Now Serving</p>
-                    <div id="finance-now-serving" class="queue-number text-8xl font-extrabold text-blue-600 mb-2">---</div>
-                    <p id="finance-window" class="text-2xl font-semibold text-gray-700">Window 1</p>
+                    <div id="focusNowServing" class="queue-number text-8xl font-extrabold text-blue-600 mb-2">---</div>
+                    <p id="focusWindow" class="text-2xl font-semibold text-gray-700">Window 1</p>
+                    <div class="mb-6">
+                        <span id="trackerStatusBadge"
+                            class="hiddeninline-block px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border bg-gray-100 text-gray-700 border-gray-300">
+                            ---
+                        </span>
+                    </div>
                 </div>
                 <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-between items-center">
                     <span class="text-sm font-semibold text-gray-500 uppercase">Next in line</span>
-                    <span id="finance-next-preview" class="text-xl font-bold text-gray-400">---</span>
+                    <span id="focusNextPreview" class="text-xl font-bold text-gray-400">---</span>
                 </div>
             </div>
 
-            <!-- Registrar Display -->
-            <div class="flex-1 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col overflow-hidden relative">
-                <div class="bg-teal-600 px-6 py-3 flex justify-between items-center text-white">
-                    <h2 class="text-xl font-bold flex items-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        REGISTRAR
-                    </h2>
-                    <span class="text-sm bg-teal-500 px-3 py-1 rounded-full" id="registrar-waiting-count">Waiting: 0</span>
+            <!-- Other Department Quick Glance (Small) -->
+            <div class="hidden h-24 bg-white rounded-xl shadow border border-gray-200 flex items-center justify-between px-6 opacity-60">
+                <div class="flex items-center gap-3">
+                    <div id="otherDeptBadge" class="w-3 h-3 rounded-full bg-teal-500"></div>
+                    <span id="otherDeptName" class="font-bold text-gray-600">REGISTRAR (GLOBAL)</span>
                 </div>
-                <div class="flex-1 flex flex-col items-center justify-center p-6">
-                    <p class="text-gray-500 text-lg font-medium mb-2 uppercase tracking-widest">Now Serving</p>
-                    <div id="registrar-now-serving" class="queue-number text-8xl font-extrabold text-teal-600 mb-2">---</div>
-                    <p id="registrar-window" class="text-2xl font-semibold text-gray-700">Window 3</p>
-                </div>
-                <div class="bg-gray-50 border-t border-gray-200 px-6 py-4 flex justify-between items-center">
-                    <span class="text-sm font-semibold text-gray-500 uppercase">Next in line</span>
-                    <span id="registrar-next-preview" class="text-xl font-bold text-gray-400">---</span>
+                <div class="text-right">
+                    <span class="text-xs text-gray-400 block uppercase">Serving Now</span>
+                    <span id="otherDeptServing" class="text-xl font-bold text-gray-600">---</span>
                 </div>
             </div>
         </div>
@@ -75,53 +73,77 @@
         <div class="w-full md:w-96 bg-white rounded-xl shadow-lg border border-gray-200 flex flex-col">
             <div class="px-6 py-4 border-b border-gray-200 bg-gray-50 rounded-t-xl">
                 <h2 class="text-lg font-bold text-gray-800">Terminal Actions</h2>
-                <p class="text-xs text-gray-500">Syncs instantly to TV screens via SSE</p>
+                <p class="text-xs text-gray-500">Select your assigned Window & Dept below</p>
             </div>
 
-            <div class="flex-1 p-6 flex flex-col gap-6 flex-1 overflow-y-hidden">
-                <!-- Action Buttons -->
-                <div class="flex flex-col gap-3">
-                    <button onclick="issueTicket('finance')" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Issue Finance Ticket
-                    </button>
-                    <button onclick="issueTicket('registrar')" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                        Issue Registrar Ticket
-                    </button>
+            <div class="flex-1 p-6 flex flex-col gap-5 overflow-y-auto">
+                
+                <!-- Terminal Context Selection -->
+                <div class="bg-blue-50 border border-blue-100 rounded-lg p-3">
+                    <label class="block text-xs font-bold text-blue-800 uppercase tracking-wide mb-2">My Station</label>
+                    <div class="flex gap-2">
+                        <select id="callDept" onchange="updateLocalContext()" class="flex-1 border border-blue-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-blue-900">
+                            <option value="finance">Finance</option>
+                            <option value="registrar">Registrar</option>
+                        </select>
+                        <select id="callWindow" onchange="updateLocalContext()" class="flex-1 border border-blue-200 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white font-semibold text-blue-900">
+                            <!-- Populated by JS based on Dept -->
+                        </select>
+                    </div>
                 </div>
 
                 <hr class="border-gray-200">
 
                 <!-- Call Next Form -->
                 <div>
-                    <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Call Next Customer</h3>
-                    <div class="flex flex-col gap-3">
-                        <select id="callDept" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="finance">Finance / Cashier</option>
-                            <option value="registrar">Registrar</option>
-                        </select>
-                        <select id="callWindow" class="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="Window 1">Window 1</option>
-                            <option value="Window 2">Window 2</option>
-                            <option value="Window 3">Window 3</option>
-                            <option value="Window 4">Window 4</option>
-                        </select>
-                        <button onclick="callNext()" class="w-full bg-slate-800 hover:bg-slate-900 text-white font-bold py-2 px-4 rounded-md transition-colors">
+                    <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Action</h3>
+                    <div class="flex flex-col gap-2">
+                        <button id="callNextBtn" onclick="callNext()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-colors text-lg shadow-md">
                             Call Next Number
                         </button>
-                        <button onclick="clearWindow()" class="w-full sm:w-auto bg-red-100 hover:bg-red-200 text-red-700 font-bold py-2 px-4 rounded-md transition-colors text-sm border border-red-300">
-                            Clear Window
+                        <button onclick="clearWindow()" class="w-full bg-red-50 hover:bg-red-100 text-red-700 font-bold py-2 px-4 rounded-md transition-colors text-sm border border-red-200">
+                            Clear / Reset Window
                         </button>
                     </div>
                 </div>
 
                 <hr class="border-gray-200">
 
-                <!-- Active Queues List -->
-                <div class="flex-1  flex flex-col gap-2 overflow-y-auto">
-                    <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Global Waiting List</h3>
-                    <div id="waitingList" class="flex flex-col gap-2 overflow-y-auto">
+                <!-- Status Management -->
+                <div>
+                    <h3 class="text-sm font-bold text-gray-700 mb-3 uppercase tracking-wide">Update Ticket Status</h3>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="updateStatus('processing')" class="bg-orange-50 hover:bg-orange-100 text-orange-700 font-bold py-2 rounded-md text-sm border border-orange-200 transition-colors">
+                            Processing
+                        </button>
+                        <button onclick="updateStatus('hold')" class="bg-cyan-50 hover:bg-cyan-100 text-cyan-700 font-bold py-2 rounded-md text-sm border border-cyan-200 transition-colors">
+                            On Hold
+                        </button>
+                        <button onclick="updateStatus('closed')" class="col-span-2 bg-gray-800 hover:bg-gray-900 text-white font-bold py-2 rounded-md text-sm shadow-sm transition-colors">
+                            Close Transaction
+                        </button>
+                    </div>
+                </div>
+
+                <hr class="border-gray-200">
+
+                <!-- On Hold Section (Only shows if there are held tickets) -->
+                <div id="holdSection" class="hidden">
+                    <h3 class="text-sm font-bold text-cyan-700 mb-2 uppercase tracking-wide flex justify-between">
+                        <span>On Hold Tickets</span>
+                    </h3>
+                    <div id="holdList" class="flex flex-col gap-2 bg-cyan-50 p-2 rounded-lg border border-cyan-100">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Active Queues List (Filtered) -->
+                <div class="flex-1 flex flex-col min-h-[150px]">
+                    <h3 class="text-sm font-bold text-gray-700 mb-2 uppercase tracking-wide flex justify-between">
+                        <span>Waiting List</span>
+                        <span id="queueTypeLabel" class="text-blue-600">(Finance)</span>
+                    </h3>
+                    <div id="waitingList" class="flex flex-col gap-2 overflow-y-auto pr-1">
                         <!-- Populated by JS -->
                     </div>
                 </div>
@@ -130,13 +152,19 @@
     </main>
 
     <script>
-        // ==========================================
-        // 1. CONNECT TO BACKEND (SSE)
-        // ==========================================
         const API_BASE = 'http://localhost:3000'; 
         const statusEl = document.getElementById('connection-status');
-        let currentState = null;
+        let globalState = null;
 
+        // Define which windows belong to which department
+        const DEPT_WINDOWS = {
+            finance: ['Window 1', 'Window 2'],
+            registrar: ['Window 1', 'Window 2']
+        };
+
+        // ==========================================
+        // 1. SSE CONNECTION
+        // ==========================================
         const evtSource = new EventSource(`${API_BASE}/api/queue-stream`);
 
         evtSource.onopen = () => {
@@ -150,51 +178,158 @@
         };
 
         evtSource.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            currentState = data;
-            updateUI(data);
+            console.log('Received SSE update:', event.data);
+            globalState = JSON.parse(event.data);
+            renderTerminal();
         };
 
         // ==========================================
-        // 2. UI RENDERING
+        // 2. LOCAL CONTEXT & RENDERING
         // ==========================================
-        function updateUI(data) {
-            // Update Finance
-            document.getElementById('finance-now-serving').textContent = data.finance.current;
-            document.getElementById('finance-window').textContent = data.finance.window;
-            document.getElementById('finance-next-preview').textContent = data.finance.next;
-            document.getElementById('finance-waiting-count').textContent = `Waiting: ${data.finance.queue ? data.finance.queue.length : 0}`;
+        
+        function updateLocalContext() {
+            const dept = document.getElementById('callDept').value;
+            const windowSelect = document.getElementById('callWindow');
+            const selectedWindow = windowSelect.value;
+            console.log(dept, selectedWindow, DEPT_WINDOWS[dept]);
+            console.log(windowSelect.value, dept, DEPT_WINDOWS[dept]);
 
-            // Update Registrar
-            document.getElementById('registrar-now-serving').textContent = data.registrar.current;
-            document.getElementById('registrar-window').textContent = data.registrar.window;
-            document.getElementById('registrar-next-preview').textContent = data.registrar.next;
-            document.getElementById('registrar-waiting-count').textContent = `Waiting: ${data.registrar.queue ? data.registrar.queue.length : 0}`;
+            // Repopulate windows based on selected dept
+            windowSelect.innerHTML = '';
+            DEPT_WINDOWS[dept].forEach(win => {
+                const option = document.createElement('option');
+                option.value = win;
+                option.textContent = win;
+                if(selectedWindow === win) option.selected = true;
+                windowSelect.appendChild(option);
+            });
 
-            // Update Global Waiting List Panel
+            renderTerminal();
+        }
+
+        function renderTerminal() {
+            if (!globalState) return;
+
+            const dept = document.getElementById('callDept').value;
+            const window = document.getElementById('callWindow').value;
+            
+            const deptData = globalState[dept];
+            const windowData = deptData.activeWindows.find(w => w.window === window);
+            const otherDept = dept === 'finance' ? 'registrar' : 'finance';
+            const otherData = globalState[otherDept];
+
+            // --- A. Update the Focus Card (Colors & Text) ---
+            const focusHeader = document.getElementById('focusCardHeader');
+            const focusTitle = document.getElementById('focusCardTitle');
+            const focusNumber = document.getElementById('focusNowServing');
+            const focusWindowText = document.getElementById('focusWindow');
+            const callNextBtn = document.getElementById('callNextBtn');
+            const queueLabel = document.getElementById('queueTypeLabel');
+
+            if (dept === 'finance') {
+                focusHeader.className = 'bg-blue-600 px-6 py-3 flex justify-between items-center text-white';
+                focusTitle.textContent = 'FINANCE / CASHIER';
+                focusNumber.className = 'queue-number text-8xl font-extrabold text-blue-600 mb-2';
+                callNextBtn.className = 'w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-md transition-colors text-lg shadow-md';
+                queueLabel.textContent = '(Finance)';
+                queueLabel.className = 'text-blue-600';
+            } else {
+                focusHeader.className = 'bg-teal-600 px-6 py-3 flex justify-between items-center text-white';
+                focusTitle.textContent = 'REGISTRAR';
+                focusNumber.className = 'queue-number text-8xl font-extrabold text-teal-600 mb-2';
+                callNextBtn.className = 'w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-md transition-colors text-lg shadow-md';
+                queueLabel.textContent = '(Registrar)';
+                queueLabel.className = 'text-teal-600';
+            }
+
+            // Update Card Data (Based on selected Window)
+            focusNumber.textContent = windowData?.number || '---';
+            focusWindowText.textContent = window;
+
+            const badge = document.getElementById('trackerStatusBadge');
+            badge.className = 'inline-block px-4 py-1.5 rounded-full text-sm font-bold uppercase tracking-wide border';
+            switch (windowData?.status) {
+                case 'calling':
+                    badge.textContent = `Calling`;
+                    badge.classList.add('bg-yellow-100', 'text-yellow-700', 'border-yellow-400', 'animate-pulse');
+                    badge.classList.remove('hidden');
+                    break;
+
+                case 'processing':
+                    badge.textContent = `Processing`;
+                    badge.classList.add('bg-orange-100', 'text-orange-700', 'border-orange-400');
+                    badge.classList.remove('hidden');
+                    break;
+
+                case 'void':
+                    badge.textContent = 'Voided';
+                    badge.classList.add('bg-red-100', 'text-red-700', 'border-red-400');
+                    badge.classList.remove('hidden');
+                    break;
+
+                case 'closed':
+                    badge.textContent = 'Closed';
+                    badge.classList.add('bg-gray-200', 'text-gray-600', 'border-gray-300');
+                    badge.classList.remove('hidden');
+                    break;
+                default:
+                    badge.classList.add('hidden');
+            }
+            
+            document.getElementById('focusWaitingCount').textContent = `Waiting: ${deptData.queue ? deptData.queue.length : 0}`;
+            document.getElementById('focusNextPreview').textContent = deptData.queue && deptData.queue.length > 0 ? deptData.queue[0].number : '---';
+
+            // --- B. Update Other Dept Glance ---
+            document.getElementById('otherDeptName').textContent = `${otherDept.toUpperCase()} (GLOBAL)`;
+            document.getElementById('otherDeptBadge').className = `w-3 h-3 rounded-full ${otherDept === 'finance' ? 'bg-blue-500' : 'bg-teal-500'}`;
+            document.getElementById('otherDeptServing').textContent = otherData.current || '---';
+
+            // --- C. Render Filtered Waiting List ---
             const listContainer = document.getElementById('waitingList');
             listContainer.innerHTML = '';
+            const activeQueue = deptData.queue || [];
 
-            const allWaiting = [
-                ...(data.finance.queue || []).map((q,i) => ({ ...q, dept: 'Finance', index: i + 1 })),
-                ...(data.registrar.queue || []).map((q,i) => ({ ...q, dept: 'Registrar', index: i + 1 }))
-            ];
-
-            if (allWaiting.length === 0) {
+            if (activeQueue.length === 0) {
                 listContainer.innerHTML = `<p class="text-sm text-gray-400 italic text-center py-4">No customers waiting.</p>`;
             } else {
-                allWaiting.forEach((item, index) => {
-                    const badgeColor = item.dept === 'Finance' ? 'bg-blue-100 text-blue-700' : 'bg-teal-100 text-teal-700';
+                activeQueue.forEach((item, index) => {
                     listContainer.innerHTML += `
-                        <div class="flex justify-between items-center p-2 bg-gray-50 border border-gray-200 rounded text-sm">
+                        <div class="flex justify-between items-center p-2 bg-gray-50 border border-gray-200 rounded text-sm shadow-sm">
                             <div class="flex items-center gap-2">
                                 <span class="font-bold text-gray-800">${item.number}</span>
-                                <span class="px-2 py-0.5 rounded text-xs font-semibold ${badgeColor}">${item.dept}</span>
+                                <span class="text-xs text-gray-500 truncate max-w-[100px]" title="${item.transaction}">${item.transaction}</span>
                             </div>
-                            <span class="text-xs text-gray-500">#${item.index} in line</span>
+                            <span class="text-xs font-bold ${dept === 'finance' ? 'text-blue-600' : 'text-teal-600'}">#${index + 1}</span>
                         </div>
                     `;
                 });
+            }
+
+            // --- D. Render Held Tickets ---
+            const holdSection = document.getElementById('holdSection');
+            const holdList = document.getElementById('holdList');
+            holdList.innerHTML = '';
+
+            // Filter held tickets for this department AND this window
+            const heldTickets = (deptData.heldTickets || []).filter(t => t.window === window);
+
+            if (heldTickets.length > 0) {
+                holdSection.classList.remove('hidden');
+                heldTickets.forEach(ticket => {
+                    holdList.innerHTML += `
+                        <div class="flex justify-between items-center p-2 bg-white border border-cyan-200 rounded text-sm shadow-sm">
+                            <div class="flex flex-col">
+                                <span class="font-bold text-gray-800">${ticket.number}</span>
+                                <span class="text-[10px] text-gray-500">${ticket.transaction}</span>
+                            </div>
+                            <button onclick="resumeTicket('${ticket.number}')" class="bg-cyan-600 hover:bg-cyan-700 text-white text-xs font-bold py-1 px-2 rounded transition-colors">
+                                Resume
+                            </button>
+                        </div>
+                    `;
+                });
+            } else {
+                holdSection.classList.add('hidden');
             }
         }
 
@@ -202,49 +337,68 @@
         // 3. API ACTIONS
         // ==========================================
         
-        async function issueTicket(dept) {
-            try {
-                const res = await fetch(`${API_BASE}/api/issue-ticket`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ dept })
-                });
-                if (!res.ok) throw new Error('Failed to issue ticket');
-                // The SSE connection will automatically update the UI!
-            } catch (err) {
-                alert("Error connecting to server. Please check backend.");
-                console.error(err);
-            }
+        function getContext() {
+            return {
+                dept: document.getElementById('callDept').value,
+                window: document.getElementById('callWindow').value
+            };
         }
 
         async function callNext() {
-            const dept = document.getElementById('callDept').value;
-            const window = document.getElementById('callWindow').value;
-
+            const { dept, window } = getContext();
             try {
                 const res = await fetch(`${API_BASE}/api/call-next`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ dept, window })
                 });
-                
                 if (!res.ok) {
                     const errorData = await res.json();
                     alert(errorData.message || "Failed to call next.");
                 }
-                // The SSE connection will automatically update the UI!
-                
             } catch (err) {
-                alert("Error connecting to server. Please check backend.");
-                console.error(err);
+                alert("Error connecting to server.");
+            }
+        }
+
+        async function updateStatus(status) {
+            const { dept, window } = getContext();
+            try {
+                const res = await fetch(`${API_BASE}/api/update-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dept, window, status })
+                });
+                if (!res.ok) {
+                    const error = await res.json();
+                    alert(error.message || "Failed to update status.");
+                }
+            } catch (err) {
+                alert("Error connecting to server.");
+            }
+        }
+
+        async function resumeTicket(ticketNumber) {
+            const { dept, window } = getContext();
+            try {
+                const res = await fetch(`${API_BASE}/api/resume-ticket`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dept, window, ticketNumber })
+                });
+                if (!res.ok) {
+                    const error = await res.json();
+                    alert(error.message || "Failed to resume ticket.");
+                }
+            } catch (err) {
+                alert("Error connecting to server.");
             }
         }
 
         async function clearWindow() {
-            const dept = document.getElementById('callDept').value;
-            const window = document.getElementById('callWindow').value;
-
-            if (!confirm(`Are you sure you want to clear ${window} for ${dept}?`)) return;
+            console.log(getContext(), globalState);
+            const { dept, window } = getContext();
+            if (!confirm(`Are you sure you want to clear ${window}? The current ticket may will be VOIDED.`)) return;
 
             try {
                 const res = await fetch(`${API_BASE}/api/clear-window`, {
@@ -252,20 +406,21 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ dept, window })
                 });
-                
                 if (!res.ok) throw new Error('Failed to clear window');
             } catch (err) {
                 alert("Error connecting to server.");
-                console.error(err);
             }
         }
 
         // ==========================================
-        // 4. CLOCK
+        // 4. CLOCK & INIT
         // ==========================================
         setInterval(() => {
             document.getElementById('clock').textContent = new Date().toLocaleTimeString('en-US', { hour12: false });
         }, 1000);
+        
+        // Initial call to set default UI state and populate windows
+        updateLocalContext();
     </script>
 </body>
 </html>
